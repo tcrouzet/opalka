@@ -5,16 +5,25 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 output_dir = os.path.join(script_dir, "output")
 os.makedirs(output_dir, exist_ok=True)
 
+treshold_degradation = None
 
-def new_painting(width, height, number, painting_num):
+def new_painting(width, height, painting_num, number=None):
     image = Image.new("RGB", (width, height), "black")
     draw = ImageDraw.Draw(image)
 
     # Calcul du fond
-    if number < 1000000:  # 1965 à 1971
-        background = "black"
-    else:  # À partir de 1972
-        background_intensity = (painting_num - 40) * 0.01
+    if number:    
+        if number < 1000000: 
+            # 1965 à 1971 pour Opalka
+            background = "black"
+            treshold_degradation = painting_num
+        else:
+            # À partir de 1972
+            background_intensity = (painting_num - treshold_degradation) * 0.01
+            background = (int(255 * background_intensity), int(255 * background_intensity), int(255 * background_intensity))
+    else:
+        # Dégratation dès le début
+        background_intensity = (painting_num - 1) * 0.01
         background = (int(255 * background_intensity), int(255 * background_intensity), int(255 * background_intensity))
     
     draw.rectangle([(0, 0), (width, height)], fill=background)
@@ -50,7 +59,7 @@ def create_opalka_painting(painting_num, number, height=9000):
     # Nombre de digit avec une charge du pinceau
     treshold = random.randint(12, 22)
 
-    image, draw = new_painting(width, height, number, painting_num)
+    image, draw = new_painting(width, height, painting_num)
 
     while(True):
         # Création d'une nouvelle image
@@ -95,7 +104,7 @@ def create_opalka_painting(painting_num, number, height=9000):
         number += 1
 
 
-create_opalka_painting(1, 1)
+create_opalka_painting(30, 1)
 exit()
 
 start = 1
